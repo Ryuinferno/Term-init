@@ -2,20 +2,80 @@
 #Script to enable init.d by Ryuinferno @ XDA 2012
 
 echo "Init.d Enabler by Ryuinferno @ XDA 2012"
+echo ""
 sleep 2
-echo "Have you installed busybox with proper applets? (yes=any number/no=2):"
-read ins
 
-if [ $ins -eq 2 ]
+id=`id`; 
+id=`echo ${id#*=}`; 
+id=`echo ${id%%\(*}`; 
+id=`echo ${id%% *}`
+if [ "$id" != "0" ] && [ "$id" != "root" ]; then
+echo "Script NOT running as root!"
+sleep 2
+echo "SuperUser access not granted!"
+sleep 2
+echo "Please type 'su' first before running this script..."
+exit
+else
+echo "Hello Supaa User! :P"
+echo ""
+sleep 2
+fi
+
+if [ ! "'which busybox'" ]
 then
-echo "Please install busybox with proper applets first before attempting this...thank you...=)"
+echo "busybox NOT INSTALLED!"
+sleep 2
+echo "Please install busybox first!"
+exit
+else
+echo "busybox found!"
+sleep 2
+fi
+
+bbb=0
+
+if [ ! "`which awk`" ]
+then bbb=1
+echo "awk applet NOT FOUND!"
+sleep 2
+else 
+echo "Awesome! awk found! :D"
+sleep 2
+fi
+
+if [ ! "`which run-parts`" ]
+then bbb=1
+echo "run-parts applet NOT FOUND!"
+sleep 2
+else
+echo "Good! run-parts found! :)"
+echo ""
+sleep 2
+fi
+
+if [ $bbb -eq 1 ] 
+then
+echo ""
+echo "Required applets are NOT FOUND!"
+echo ""
+sleep 2
+echo "Please reinstall busybox!"
 exit
 fi
-sleep 2
+
 echo "Great! Let's proceed..."
+echo ""
+sleep 1
+echo "Press enter to continue..."
+read enterKey
+
+clear
 sleep 2
 echo "Mounting system as rewritable..."
+echo ""
 busybox mount -o remount,rw -t auto /system
+
 sleep 2
 echo "Checking for the presence of install-recovery.sh..."
 sleep 2
@@ -36,12 +96,16 @@ echo "# init.d support" >> /system/etc/install-recovery.sh
 echo "run-parts /system/etc/init.d/" >> /system/etc/install-recovery.sh
 echo "" >> /system/etc/install-recovery.sh
 fi
+
 sleep 2
 echo "Setting the correct permissions and ownership for install-recovery.sh..."
+echo ""
 chmod 755 /system/etc/install-recovery.sh
 chown 0.0 /system/etc/install-recovery.sh
+
 sleep 2
 echo "Checking for the presence of the init.d folder..."
+sleep 2
 if [ -e /system/etc/init.d ]
 then
 echo "Init.d folder found..."
@@ -49,10 +113,12 @@ else
 echo "Init.d folder not found, creating the folder..."
 mkdir /system/etc/init.d
 fi
+
 sleep 2
 echo "Creating basic init.d scripts..."
 echo "#!/system/bin/sh" > /system/etc/init.d/08setperm
 echo "#Script to set correct permissions to /system/etc/init.d folder by Ryuinferno @ XDA 2012" >> /system/etc/init.d/08setperm
+echo "" >> /system/etc/init.d/08setperm
 echo "busybox mount -o remount,rw -t auto /system;" >> /system/etc/init.d/08setperm
 echo "busybox chmod -R 777 /system/etc/init.d;" >> /system/etc/init.d/08setperm
 echo "" >> /system/etc/init.d/08setperm
@@ -66,52 +132,61 @@ echo "if [ -e /data/Test.log ]; then" >> /system/etc/init.d/00test
 echo "rm /data/Test.log" >> /system/etc/init.d/00test
 echo "fi" >> /system/etc/init.d/00test
 echo "" >> /system/etc/init.d/00test
-echo "echo  "Ryuinferno @ XDA 2012" > /data/Test.log" >> /system/etc/init.d/00test
-echo "echo  "Init.d is working !!!" >> /data/Test.log" >> /system/etc/init.d/00test
+echo 'echo "Ryuinferno @ XDA 2012" > /data/Test.log' >> /system/etc/init.d/00test
+echo 'echo "Init.d is working !!!" >> /data/Test.log' >> /system/etc/init.d/00test
+echo 'echo "excecuted on $(date +"%d-%m-%Y %r" )" >> /data/Test.log' >> /system/etc/init.d/00test
 echo "" >> /system/etc/init.d/00test
+
 sleep 2
 echo "Setting correct permissions and ownership for init.d folder..."
+echo ""
 chmod 777 /system/etc/init.d/08setperm
 chmod 777 /system/etc/init.d/00test
 chown 0.0 /system/etc/init.d
 chown 0.0 /system/etc/init.d/08setperm
 chown 0.0 /system/etc/init.d/00test
+
 sleep 2
-echo "Checking for the presence of sysint in /system/bin..."
+echo "Checking for the presence of sysinit in /system/bin..."
 sleep 2
-if [ -e /system/bin/sysint ]
+if [ -e /system/bin/sysinit ]
 then
-echo "Sysint found, adding lines to it..."
-echo "#!/system/bin/sh" >> /system/bin/sysint
-echo "# init.d support" >> /system/bin/sysint
-echo "" >> /system/bin/sysint
-echo "export PATH=/sbin:/system/sbin:/system/bin:/system/xbin" >> /system/bin/sysint
-echo "/system/bin/logwrapper run-parts /system/etc/init.d" >> /system/bin/sysint 
-echo "" >> /system/bin/sysint
-awk '!x[$0]++' /system/bin/sysint > /sdcard/sysint
-cat /sdcard/sysint > /system/bin/sysint
-echo "" >> /system/bin/sysint
-rm /sdcard/sysint
+echo "Sysinit found, adding lines to it..."
+echo "#!/system/bin/sh" >> /system/bin/sysinit
+echo "# init.d support" >> /system/bin/sysinit
+echo "" >> /system/bin/sysinit
+echo "export PATH=/sbin:/system/sbin:/system/bin:/system/xbin" >> /system/bin/sysinit
+echo "/system/bin/logwrapper run-parts /system/etc/init.d" >> /system/bin/sysinit 
+echo "" >> /system/bin/sysinit
+awk '!x[$0]++' /system/bin/sysinit > /sdcard/sysinit
+cat /sdcard/sysinit > /system/bin/sysinit
+echo "" >> /system/bin/sysinit
+rm /sdcard/sysinit
 else
-echo "Sysint not found, creating file..."
-echo "#!/system/bin/sh" > /system/bin/sysint
-echo "# init.d support" >> /system/bin/sysint
-echo "" >> /system/bin/sysint
-echo "export PATH=/sbin:/system/sbin:/system/bin:/system/xbin" >> /system/bin/sysint
-echo "/system/bin/logwrapper run-parts /system/etc/init.d" >> /system/bin/sysint 
-echo "" >> /system/bin/sysint
+echo "Sysinit not found, creating file..."
+echo "#!/system/bin/sh" > /system/bin/sysinit
+echo "# init.d support" >> /system/bin/sysinit
+echo "" >> /system/bin/sysinit
+echo "export PATH=/sbin:/system/sbin:/system/bin:/system/xbin" >> /system/bin/sysinit
+echo "/system/bin/logwrapper run-parts /system/etc/init.d" >> /system/bin/sysinit 
+echo "" >> /system/bin/sysinit
 fi
+
 sleep 2
-echo "Setting correct permissions and ownership for sysint..."
-chmod 755 /system/bin/sysint
-chown 0.2000 /system/bin/sysint
+echo "Setting correct permissions and ownership for sysinit..."
+chmod 755 /system/bin/sysinit
+chown 0.2000 /system/bin/sysinit
+
 sleep 2
+echo ""
 echo "Done!!!"
 sleep 2
 echo "Please reboot at least twice before checking /data..."
 sleep 2
 echo "If init.d is working, you will see a Test.log in /data..."
 sleep 2
+echo ""
 echo "Enjoy!!! =)"
 sleep 2
 echo "Ryuinferno @ XDA 2012"
+
