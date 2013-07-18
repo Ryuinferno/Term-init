@@ -1,7 +1,7 @@
 #!/system/bin/sh
 #Script to enable init.d by Ryuinferno @ XDA 2013
 
-echo "Init.d Enabler by Ryuinferno @ XDA 2012"
+echo "Init.d Enabler by Ryuinferno @ XDA 2013"
 echo ""
 sleep 2
 
